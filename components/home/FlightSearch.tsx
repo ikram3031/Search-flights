@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "../ui/card";
 import {
   ArrowLeftRight,
@@ -9,6 +10,9 @@ import {
   CalendarIcon,
   TicketsPlane,
 } from "lucide-react";
+import { DateSelector } from "./DateSelector";
+import { Button } from "../ui/button";
+import { format } from "date-fns";
 
 type Airport = {
   code: string;
@@ -29,14 +33,41 @@ const FlightSearch = (props: Props) => {
   const [from, setFrom] = useState<Airport | null>(null);
   const [to, setTo] = useState<Airport | null>(null);
 
-  const [departure, setDeparture] = useState("");
-  const [returnDate, setReturnDate] = useState("");
+  const [departure, setDeparture] = useState<Date>();
+  const [returnDate, setReturnDate] = useState<Date>();
 
   const handleSwap = () => {
     if (!from && !to) return;
 
     setFrom(to);
     setTo(from);
+  };
+
+  const router = useRouter();
+
+  const handleSearch = () => {
+    // Basic validation
+    if (!from || !to || !departure) {
+      alert("Please select From, To and Departure date");
+      return;
+    }
+
+    if (tripType === "round" && !returnDate) {
+      alert("Please select Return date");
+      return;
+    }
+
+    const query = new URLSearchParams({
+      tripType,
+      from: from.code,
+      to: to.code,
+      departure: format(departure, "yyyy-MM-dd"),
+      ...(tripType === "round" && returnDate
+        ? { returnDate: format(returnDate, "yyyy-MM-dd") }
+        : {}),
+    }).toString();
+
+    router.push(`/search-flights?${query}`);
   };
 
   return (
@@ -98,8 +129,15 @@ const FlightSearch = (props: Props) => {
             </option>
           ))}
         </select>
+        <DateSelector
+          tripType={tripType}
+          departure={departure}
+          returnDate={returnDate}
+          onDepartureChange={(date) => setDeparture(date)}
+          onReturnChange={(date) => setReturnDate(date)}
+        />
 
-        <div className="relative">
+        {/* <div className="relative">
           <input
             type="date"
             value={departure}
@@ -110,7 +148,28 @@ const FlightSearch = (props: Props) => {
             size={16}
             className="absolute right-3 top-3 text-gray-400"
           />
+        </div> */}
+      </div>
+      {/* bottom */}
+      <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+        <div className="flex gap-6 text-sm text-gray-500">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" />
+            Direct Flights Only
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input type="checkbox" />
+            Nearby Airports
+          </label>
         </div>
+
+        <Button
+          onClick={handleSearch}
+          className="h-12 rounded-xl px-8 text-base"
+        >
+          Search Flights
+        </Button>
       </div>
     </Card>
   );
