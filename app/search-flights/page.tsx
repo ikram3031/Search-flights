@@ -37,7 +37,7 @@ type FlightCard = {
   };
 };
 
-const CHUNK_SIZE = 20;
+const CHUNK_SIZE = 10;
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -52,6 +52,7 @@ export default function Page() {
   const [displayed, setDisplayed] = useState<FlightCard[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
 
@@ -95,6 +96,7 @@ export default function Page() {
         const data = await res.json();
 
         setAllResults(data.results || []);
+        setTotalResults(data.totalResults || 0);
         setDisplayed(data?.results?.slice(0, CHUNK_SIZE));
         setLoading(false);
       } catch (error) {
@@ -135,6 +137,12 @@ export default function Page() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="p-4 space-y-4 mx-auto max-w-4xl">
+        {loading === false && (
+          <h1 className="text-2xl font-bold">
+            {totalResults} available flights
+          </h1>
+        )}
+
         {displayed.map((flight) => (
           <div
             key={flight.id}
@@ -247,7 +255,11 @@ export default function Page() {
         {/* Observer Element */}
         <div ref={observerRef} className="h-10" />
 
-        {loading && <p>Loading flights...</p>}
+        {loading && (
+          <p className="text-center font-bold text-2xl">
+            Searching for available flights...
+          </p>
+        )}
       </div>
     </div>
   );
