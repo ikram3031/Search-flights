@@ -4,6 +4,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { formatTime } from "@/utils/formatTime";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 type FlightCard = {
   id: string;
@@ -53,10 +55,24 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
-
+  const [error, setError] = useState<string | null>(null);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
+  const router = useRouter();
+
   useEffect(() => {
+    if (
+      !from ||
+      !to ||
+      !departure ||
+      !tripType ||
+      (tripType === "round" && !returnDate)
+    ) {
+      setError(
+        "Missing required search parameters. please go back and try again.",
+      );
+      return;
+    }
     const fetchFlights = async () => {
       try {
         setLoading(true);
@@ -137,7 +153,7 @@ export default function Page() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="p-4 space-y-4 mx-auto max-w-4xl">
-        {loading === false && (
+        {loading === false && displayed.length > 0 && (
           <h1 className="text-2xl font-bold">
             {totalResults} available flights
           </h1>
@@ -259,6 +275,19 @@ export default function Page() {
           <p className="text-center font-bold text-2xl">
             Searching for available flights...
           </p>
+        )}
+
+        {/* error */}
+        {error && (
+          <div className="mx-auto w-[70%]">
+            <p className="text-center font-bold text-2xl my-4">{error}</p>
+            <Button
+              className="mx-auto block mt-6"
+              onClick={() => router.push("/")}
+            >
+              Go Back
+            </Button>
+          </div>
         )}
       </div>
     </div>
