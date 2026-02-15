@@ -139,23 +139,10 @@ const FlightSearch = (props: Props) => {
           onDepartureChange={(date) => setDeparture(date)}
           onReturnChange={(date) => setReturnDate(date)}
         />
-
-        {/* <div className="relative">
-          <input
-            type="date"
-            value={departure}
-            onChange={(e) => setDeparture(e.target.value)}
-            className="h-12 w-full rounded-xl border px-4"
-          />
-          <CalendarIcon
-            size={16}
-            className="absolute right-3 top-3 text-gray-400"
-          />
-        </div> */}
       </div>
       {/* bottom */}
-      <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-        <div className="flex gap-6 text-sm text-gray-500">
+      <div className="flex flex-col items-center justify-end gap-4 md:flex-row">
+        {/* <div className="flex gap-6 text-sm text-gray-500">
           <label className="flex items-center gap-2">
             <input type="checkbox" />
             Direct Flights Only
@@ -165,7 +152,7 @@ const FlightSearch = (props: Props) => {
             <input type="checkbox" />
             Nearby Airports
           </label>
-        </div>
+        </div> */}
 
         <Button
           onClick={handleSearch}

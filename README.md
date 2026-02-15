@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flight Search System
 
-## Getting Started
+## Tech Stack
 
-First, run the development server:
+- Next js
+- Typesript
+- Tailwind css
+- Shad cn
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Frontend Handling
+
+- Search form collects:
+  - Origin
+  - Destination
+  - Departure date
+  - Return date (if round trip)
+- Request is sent to `/api/search`
+- Loading state is managed using React state
+- Results are displayed with infinite scroll (10 at a time)
+
+## System Flow
+
+The search application follows this required flow:
+
+```
+Generate Token
+→ Fetch App Data
+→ Extract Flight API IDs
+→ Select Two
+→ Execute Parallel Search
+→ Merge Results
+→ Simplify Data
+→ Return Results
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 1️⃣ Token Handling
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Token generation is implemented as a reusable utility function.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### How It Works
 
-## Learn More
+When `getToken()` is called:
 
-To learn more about Next.js, take a look at the following resources:
+- If a valid token already exists in memory → return it
+- If not → call auth API → store token in memory → return it
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 2️⃣ getAppData Handling
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Similar to token logic, `getAppData()` is implemented as a utility function.
 
-## Deploy on Vercel
+### How It Works
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- If `flightApis` already exist in memory → return from memory
+- Otherwise:
+  - Call `getAppData` API
+  - Extract `flightApis`
+  - Store in memory
+  - Return data
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 3️⃣ Next.js API Route
+
+```
+app/api/search/route.ts
+```
+
+### Responsibilities
+
+- Receive search request from frontend
+- Get token (from memory or API)
+- Get flight API IDs (from memory or API)
+- Select any two APIs
+- Execute parallel search
+- Merge results
+- Simplify result structure
+- Return clean response
+
+## 4️⃣ Parallel Flight Search (Multi-Supplier)
+
+From the available `flightApis`, two APIs are selected.
+
+These two APIs are called asynchronously.
+
+### Implementation Strategy
+
+`Promise.allSettled()` is used instead of `Promise.all()`.
+
+## Assumptions & Simplifications
+
+- Passenger selection is currently hardcoded to:
+  - 1 Adult (ADT)
+- Cabin class is fixed to Economy
+- Two API IDs are selected from available flight APIs
+
+These simplifications were made to focus on:
+
+- Backend integration
+- Multi-supplier orchestration
+- Secure API handling
+- Result merging logic
