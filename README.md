@@ -76,9 +76,7 @@ app/api/search/route.ts
 
 ## 4️⃣ Parallel Flight Search (Multi-Supplier)
 
-From the available `flightApis`, two APIs are selected.
-
-These two APIs are called asynchronously.
+Using 2 ApiIds two APIs are called asynchronously.
 
 ### Implementation Strategy
 
