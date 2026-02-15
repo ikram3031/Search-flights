@@ -13,6 +13,7 @@ import {
 import { DateSelector } from "./DateSelector";
 import { Button } from "../ui/button";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 type Airport = {
   code: string;
@@ -48,12 +49,14 @@ const FlightSearch = (props: Props) => {
   const handleSearch = () => {
     // Basic validation
     if (!from || !to || !departure) {
-      alert("Please select From, To and Departure date");
+      // alert("Please select From, To and Departure date");
+      toast.error("Please select From, To and Departure date");
       return;
     }
 
     if (tripType === "round" && !returnDate) {
-      alert("Please select Return date");
+      // alert("Please select Return date");
+      toast.error("Please select Return date");
       return;
     }
 

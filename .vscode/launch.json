@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // Debug Next.js server-side code (API routes)
+    {
+      "name": "Next.js: Node (Server-side)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    // Debug client-side code in Chrome
+    {
+      "name": "Next.js: Chrome (Client-side)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Next.js: Full Stack",
+      "configurations": [
+        "Next.js: Node (Server-side)",
+        "Next.js: Chrome (Client-side)"
+      ]
+    }
+  ]
+}
