@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
+import { formatTime } from "@/utils/formatTime";
 
 type FlightCard = {
   id: string;
@@ -11,21 +12,28 @@ type FlightCard = {
   airlineCode: string;
   price: number;
   currency: string;
-  stops: number;
   duration: string;
+  inStops: number;
+  outStops: number;
   outbound: {
     from: string;
     to: string;
     depTime: string;
     arrTime: string;
-    date: string;
+    depDate: string;
+    arrDate: string;
+    depAirport: string;
+    arrAirport: string;
   };
   inbound?: {
     from: string;
     to: string;
     depTime: string;
     arrTime: string;
-    date: string;
+    depDate: string;
+    arrDate: string;
+    depAirport: string;
+    arrAirport: string;
   };
 };
 
@@ -125,37 +133,122 @@ export default function Page() {
   }, [displayed, allResults, loadMore]);
 
   return (
-    <div className="p-4 space-y-4">
-      {/* {displayed.map((flight) => (
-        <div key={flight.id} className="border p-4 rounded-lg shadow-sm">
-          <div className="flex justify-between">
-            <div>
-              <h3 className="font-bold">
-                {flight.outbound.from} → {flight.outbound.to}
-              </h3>
-              <p>
-                {flight.outbound.depTime} - {flight.outbound.arrTime}
-              </p>
-              <p>{flight.airline}</p>
-              <p>{flight.stops === 0 ? "Non-Stop" : `${flight.stops} Stop`}</p>
-            </div>
+    <div className="bg-gray-100 min-h-screen">
+      <div className="p-4 space-y-4 mx-auto max-w-4xl">
+        {displayed.map((flight) => (
+          <div
+            key={flight.id}
+            className="border p-4 rounded-lg shadow-sm bg-white"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4">
+                {/* OUTBOUND */}
+                <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2">
+                  <div className="">
+                    <h3 className="font-bold text-lg">
+                      {flight.outbound.from} → {flight.outbound.to}
+                    </h3>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {flight.airline}
+                    </p>
+                    <p className="text-gray-500 font-bold text-xs">
+                      {flight.duration}
+                    </p>
+                  </div>
+                  <div className="">
+                    <p className="text-lg font-bold">
+                      {formatTime(flight.outbound.depTime)}
+                    </p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {flight.outbound.depDate}
+                    </p>
+                    <p className="text-gray-500 font-bold text-xs ">
+                      {flight.outbound.depAirport}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold">
+                      {formatTime(flight.outbound.arrTime)}
+                    </p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {flight.outbound.arrDate}
+                    </p>
+                    <p className="text-gray-500 font-bold text-xs">
+                      {flight.outbound.arrAirport}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-base font-bold">
+                      {flight.outStops === 0
+                        ? "Non-Stop"
+                        : `${flight.outStops} Stop${flight.outStops > 1 ? "s" : ""}`}
+                    </p>
+                  </div>
+                </div>
+                {/* inbound */}
+                {tripType === "round" ? (
+                  <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 border-t border-gray-300 pt-4">
+                    <div className="">
+                      <h3 className="font-bold text-lg">
+                        {flight.inbound?.from} → {flight.inbound?.to}
+                      </h3>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {flight.airline}
+                      </p>
+                      <p className="text-gray-500 font-bold text-xs">
+                        {flight.duration}
+                      </p>
+                    </div>
+                    <div className="">
+                      <p className="text-lg font-bold">
+                        {formatTime(flight.inbound?.depTime)}
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {flight.inbound?.depDate}
+                      </p>
+                      <p className="text-gray-500 font-bold text-xs ">
+                        {flight.inbound?.depAirport}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold">
+                        {formatTime(flight.inbound?.arrTime)}
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {flight.inbound?.arrDate}
+                      </p>
+                      <p className="text-gray-500 font-bold text-xs">
+                        {flight.inbound?.arrAirport}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-base font-bold">
+                        {flight.outStops === 0
+                          ? "Non-Stop"
+                          : `${flight.outStops} Stop${flight.outStops > 1 ? "s" : ""}`}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
 
-            <div className="text-right">
-              <p className="text-xl font-bold">
-                {flight.currency} {flight.price}
-              </p>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2">
-                Select
-              </button>
+              <div className="text-right w-[20%] ">
+                <p className="text-xl font-bold">
+                  {flight.currency} {flight.price}
+                </p>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2">
+                  Select
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ))} */}
+        ))}
 
-      {/* Observer Element */}
-      <div ref={observerRef} className="h-10" />
+        {/* Observer Element */}
+        <div ref={observerRef} className="h-10" />
 
-      {loading && <p>Loading flights...</p>}
+        {loading && <p>Loading flights...</p>}
+      </div>
     </div>
   );
 }

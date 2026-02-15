@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "@/lib/token";
 import { getAgentAppData } from "@/lib/getAgentAppData";
 import { appMemory } from "@/lib/appMemory";
+import { arrayBuffer } from "stream/consumers";
 
 const BASE_URL = process.env.A4_BASE_URL!;
 
@@ -49,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     const responses = await Promise.allSettled(requests);
     // console.log("API responses:", responses);
-    debugger;
+    // debugger;
     const successfulResponses = responses
       .filter(
         (r: any) =>
@@ -82,7 +83,8 @@ export async function POST(req: NextRequest) {
           apiId: r.apiId,
           price: r.totalFare?.totalFare ?? 0,
           currency: r.totalFare?.currency ?? "",
-          stops: outbound.totalStops,
+          outStops: outbound.totalStops,
+          inStops: inbound?.totalStops ?? 0,
           duration: outbound.totalElapsedTime,
 
           outbound: {
@@ -90,7 +92,10 @@ export async function POST(req: NextRequest) {
             to: lastOutbound.arrival?.airport?.airportCode,
             depTime: firstOutbound.departure?.depTime,
             arrTime: lastOutbound.arrival?.arrTime,
-            date: firstOutbound.departure?.depDate,
+            depDate: firstOutbound.departure?.depDate,
+            arrDate: lastOutbound.arrival?.arrDate,
+            depAirport: firstOutbound.departure?.airport?.airportName,
+            arrAirport: lastOutbound.arrival?.airport?.airportName,
           },
         };
 
@@ -104,7 +109,10 @@ export async function POST(req: NextRequest) {
             to: lastInbound.arrival?.airport?.airportCode,
             depTime: firstInbound.departure?.depTime,
             arrTime: lastInbound.arrival?.arrTime,
-            date: firstInbound.departure?.depDate,
+            depDate: firstInbound.departure?.depDate,
+            arrDate: lastInbound.arrival?.arrDate,
+            depAirport: firstInbound.departure?.airport?.airportName,
+            arrAirport: lastInbound.arrival?.airport?.airportName,
           };
         }
 
@@ -113,6 +121,7 @@ export async function POST(req: NextRequest) {
       .filter(Boolean); // remove nulls
 
     return NextResponse.json({
+      totalResults: combinedResults?.length,
       results: simplifiedResults,
     });
   } catch (error: any) {
